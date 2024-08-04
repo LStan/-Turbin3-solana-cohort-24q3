@@ -1,0 +1,28 @@
+{
+  "name": "wba-solana",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "spl_init": "ts-node ./spl/spl_init.ts",
+    "spl_mint": "ts-node ./spl/spl_mint.ts",
+    "spl_transfer": "ts-node ./spl/spl_transfer.ts",
+    "spl_metadata": "ts-node ./spl/spl_metadata.ts",
+    "nft_image": "ts-node ./nft/nft_image.ts",
+    "nft_metadata": "ts-node ./nft/nft_metadata.ts",
+    "nft_mint": "ts-node ./nft/nft_mint.ts"
+  },
+  "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "3.1.1",
+    "@metaplex-foundation/umi": "^0.8.10",
+    "@metaplex-foundation/umi-bundle-defaults": "^0.8.10",
+    "@metaplex-foundation/umi-uploader-irys": "^0.9.1",
+    "@solana/spl-token": "^0.3.9",
+    "@solana/web3.js": "^1.87.6",
+    "@types/node": "^20.9.3",
+    "bs58": "^5.0.0",
+    "typescript": "^5.3.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}
