@@ -80,6 +80,23 @@ describe("vault", () => {
     expect(vaultBalanceAfter - vaultBalanceBefore).to.equal(-amount);
   });
 
+  it("Cannot withdraw more than balance", async () => {
+    const amount = await provider.connection.getBalance(vault);
+
+    let failed = false;
+    try {
+      const tx = await program.methods
+        .withdraw(new anchor.BN(amount))
+        .accounts({ user: user.publicKey })
+        .signers([user])
+        .rpc();
+    } catch (e) {
+      expect(e.error.errorMessage).to.equal("Not enough balance");
+      failed = true;
+    }
+    expect(failed).to.equal(true);
+  });
+
   it("Close", async () => {
     const userBalanceBefore = await provider.connection.getBalance(
       user.publicKey
