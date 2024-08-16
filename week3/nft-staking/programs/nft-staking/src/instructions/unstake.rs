@@ -59,7 +59,7 @@ impl<'info> Unstake<'info> {
         const SECONDS_IN_DAY: i64 = 86400;
         let time_elapsed = ((Clock::get()?.unix_timestamp - self.stake_account.last_update)
             / SECONDS_IN_DAY) as u32;
-        // require!(time_elapsed >= self.config.freeze_period, ErrorCode::InvalidFreezePeriod);
+        // require!(time_elapsed >= self.config.freeze_period, Errors::InvalidFreezePeriod);
 
         let reward_points = time_elapsed * self.config.points_per_stake as u32;
         self.user_account.points += reward_points;

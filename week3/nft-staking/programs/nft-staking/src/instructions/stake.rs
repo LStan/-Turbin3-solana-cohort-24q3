@@ -9,7 +9,7 @@ use anchor_spl::{
     token::{approve, Approve, Mint, Token, TokenAccount},
 };
 
-use crate::{error::ErrorCode, StakeAccount, StakeConfig, UserAccount};
+use crate::{Errors, StakeAccount, StakeConfig, UserAccount};
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
@@ -50,7 +50,7 @@ pub struct Stake<'info> {
     #[account(
         init,
         payer = user,
-        space = StakeAccount::INIT_SPACE,
+        space = 8 + StakeAccount::INIT_SPACE,
         seeds = [b"stake", mint.key().as_ref(), config.key().as_ref()],
         bump
     )]
@@ -70,7 +70,7 @@ impl<'info> Stake<'info> {
     pub fn stake(&mut self, bumps: &StakeBumps) -> Result<()> {
         require!(
             self.user_account.amount_staked < self.config.max_stakes,
-            ErrorCode::MaxStake
+            Errors::MaxStake
         );
 
         self.stake_account.set_inner(StakeAccount {
