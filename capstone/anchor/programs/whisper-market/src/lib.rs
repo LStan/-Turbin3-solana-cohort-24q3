@@ -15,7 +15,7 @@ declare_id!("AL8vd4XrR2xWLjHCsMUQHYnEtYR8BoMYXgySJGGkJSQ4");
 pub mod whisper_market {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn initialize(ctx: Context<Initialize>, name: String, fee_bps: u16) -> Result<()> {
+        ctx.accounts.init(name, fee_bps, &ctx.bumps)
     }
 }
