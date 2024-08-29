@@ -4,4 +4,14 @@ use anchor_lang::prelude::*;
 pub enum MarketPlaceError {
     #[msg("Name must be between 1 and 32 characters long")]
     NameTooLong,
+    #[msg("Invalid seller")]
+    InvalidSeller,
+    #[msg("Item already purchased")]
+    AlreadyPurchased,
+    #[msg("Cannot cancel the purchase")]
+    NotInPurchasedState,
+    #[msg("Invalid buyer")]
+    InvalidBuyer,
+    #[msg("Invalid proof")]
+    InvalidProof
 }

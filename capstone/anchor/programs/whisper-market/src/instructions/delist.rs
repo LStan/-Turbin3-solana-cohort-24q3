@@ -1,20 +1,16 @@
 use anchor_lang::prelude::*;
 
-use crate::{Listing, Marketplace};
+use crate::{error::MarketPlaceError, Listing, ListingState};
 
 #[derive(Accounts)]
 pub struct Delist<'info> {
     #[account(mut)]
     seller: Signer<'info>,
     #[account(
-        seeds = [b"marketplace", marketplace.name.as_bytes()],
-        bump = marketplace.bump
-    )]
-    marketplace: Account<'info, Marketplace>,
-    #[account(
         mut,
         close = seller,
-        has_one = seller,
+        has_one = seller @ MarketPlaceError::InvalidSeller,
+        constraint = listing.state == ListingState::Listed @ MarketPlaceError::AlreadyPurchased
     )]
     listing: Account<'info, Listing>,
     system_program: Program<'info, System>,

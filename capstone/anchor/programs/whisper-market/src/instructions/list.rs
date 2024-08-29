@@ -7,16 +7,12 @@ use crate::{Listing, ListingState, Marketplace};
 pub struct List<'info> {
     #[account(mut)]
     seller: Signer<'info>,
-    #[account(
-        seeds = [b"marketplace", marketplace.name.as_bytes()],
-        bump = marketplace.bump
-    )]
     marketplace: Account<'info, Marketplace>,
     #[account(
         init,
         payer = seller,
         space = 8 + Listing::INIT_SPACE + description.len(),
-        seeds = [b"listing", seller.key().as_ref(), &seed.to_le_bytes()],
+        seeds = [b"listing", seller.key().as_ref(), marketplace.key().as_ref(), &seed.to_le_bytes()],
         bump
     )]
     listing: Account<'info, Listing>,
@@ -33,7 +29,7 @@ impl<'info> List<'info> {
             message_hash,
             encrypt_key_hash: [0; 31],
             buyer: None,
-            encrypt_nonce: 0,
+            encrypt_nonce: [0; 8],
             state: ListingState::Listed,
             description,
             encrypted_message: "".to_string(),
