@@ -27,7 +27,7 @@ impl<'info> CompletePurchase<'info> {
     pub fn complete_purchase(&mut self, encrypted_message: String, zk_proof: &[u8]) -> Result<()> {
         require!(
             self.listing.state == ListingState::Purchased,
-            MarketPlaceError::NotInPurchasedState
+            MarketPlaceError::NotPurchased
         );
         require!(
             verify_proof(

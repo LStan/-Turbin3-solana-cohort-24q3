@@ -9,7 +9,7 @@ pub enum MarketPlaceError {
     #[msg("Item already purchased")]
     AlreadyPurchased,
     #[msg("Cannot cancel the purchase")]
-    NotInPurchasedState,
+    NotPurchased,
     #[msg("Invalid buyer")]
     InvalidBuyer,
     #[msg("Invalid proof")]

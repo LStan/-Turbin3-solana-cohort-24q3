@@ -20,7 +20,7 @@ impl<'info> CancelPurchase<'info> {
     pub fn cancel_purchase(&mut self) -> Result<()> {
         require!(
             self.listing.state == ListingState::Purchased,
-            MarketPlaceError::NotInPurchasedState
+            MarketPlaceError::NotPurchased
         );
         require!(
             self.listing.buyer == Some(self.buyer.key()),
