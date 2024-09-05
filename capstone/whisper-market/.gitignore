@@ -5,3 +5,6 @@ target
 node_modules
 test-ledger
 .yarn
+
+*.r1cs
+*.sym
