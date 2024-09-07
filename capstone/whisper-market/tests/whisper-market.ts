@@ -148,7 +148,7 @@ describe("whisper-market", () => {
   });
 
   it("Buyer can purchase listing", async () => {
-    const encrypt_key_hash_stub = new Array(31).fill(0);
+    const encrypt_key_hash_stub = new Array(32).fill(0);
     const nonce = getInt64Bytes(123);
 
     const balanceBefore = await provider.connection.getBalance(listing1);
@@ -177,7 +177,7 @@ describe("whisper-market", () => {
 
   it("Buyer can't purchase listing again", async () => {
     try {
-      const encrypt_key_hash_stub = new Array(31).fill(0);
+      const encrypt_key_hash_stub = new Array(32).fill(0);
       const nonce = getInt64Bytes(123);
 
       await program.methods
@@ -260,7 +260,7 @@ describe("whisper-market", () => {
   });
 
   it("Seller can complete purchase", async () => {
-    const encrypted_message_stub = "Some message";
+    const encrypted_message_stub = new Array(317).fill(0);
     const zk_proof_stub = Buffer.from("some proof");
 
     const sellerBalanceBefore = await provider.connection.getBalance(
@@ -283,7 +283,7 @@ describe("whisper-market", () => {
 
     const listingAccount = await program.account.listing.fetch(listing1);
     expect(listingAccount.state).to.deep.equal({ completed: {} });
-    expect(listingAccount.encryptedMessage).to.equal(encrypted_message_stub);
+    expect(listingAccount.encryptedMessage).to.deep.equal(encrypted_message_stub);
 
     const sellerBalanceAfter = await provider.connection.getBalance(
       seller.publicKey

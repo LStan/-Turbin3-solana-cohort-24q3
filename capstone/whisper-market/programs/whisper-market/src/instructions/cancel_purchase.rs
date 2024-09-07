@@ -41,7 +41,7 @@ impl<'info> CancelPurchase<'info> {
         self.buyer.add_lamports(full_price)?;
 
         self.listing.buyer = None;
-        self.listing.encrypt_key_hash = [0; 31];
+        self.listing.encrypt_key_hash = [0; 32];
         self.listing.encrypt_nonce = [0; 8];
         self.listing.state = ListingState::Listed;
         Ok(())

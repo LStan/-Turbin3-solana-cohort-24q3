@@ -7,16 +7,15 @@ pub struct Listing {
     pub bump: u8,
     pub seller: Pubkey,
     pub price: u64,
-    pub message_hash: [u8; 31],
+    pub message_hash: [u8; 32],
     pub buyer: Option<Pubkey>,
-    pub encrypt_key_hash: [u8; 31],
+    pub encrypt_key_hash: [u8; 32],
     // pub encrypt_nonce: u64,
     pub encrypt_nonce: [u8; 8],
     pub state: ListingState,
     #[max_len(0)]
     pub description: String,
-    #[max_len(316)]
-    pub encrypted_message: String,
+    pub encrypted_message: [u8; 317],
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]

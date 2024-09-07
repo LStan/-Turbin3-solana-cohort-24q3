@@ -33,7 +33,7 @@ pub mod whisper_market {
         seed: u64,
         description: String,
         price: u64,
-        message_hash: [u8; 31],
+        message_hash: [u8; 32],
     ) -> Result<()> {
         ctx.accounts
             .list(seed, description, price, message_hash, &ctx.bumps)
@@ -45,7 +45,7 @@ pub mod whisper_market {
 
     pub fn purchase(
         ctx: Context<Purchase>,
-        encrypt_key_hash: [u8; 31],
+        encrypt_key_hash: [u8; 32],
         nonce: [u8; 8],
     ) -> Result<()> {
         ctx.accounts.purchase(encrypt_key_hash, nonce)
@@ -57,7 +57,7 @@ pub mod whisper_market {
 
     pub fn complete_purchase(
         ctx: Context<CompletePurchase>,
-        encrypted_message: String,
+        encrypted_message: [u8; 317],
         // zk_proof: &[u8],
         zk_proof: Vec<u8>,
     ) -> Result<()> {
