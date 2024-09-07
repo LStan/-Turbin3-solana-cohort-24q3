@@ -24,7 +24,7 @@ pub struct CompletePurchase<'info> {
 }
 
 impl<'info> CompletePurchase<'info> {
-    pub fn complete_purchase(&mut self, encrypted_message: [u8; 317], zk_proof: &[u8]) -> Result<()> {
+    pub fn complete_purchase(&mut self, encrypted_message: [u8; 318], zk_proof: &[u8]) -> Result<()> {
         require!(
             self.listing.state == ListingState::Purchased,
             MarketPlaceError::NotPurchased

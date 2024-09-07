@@ -57,7 +57,7 @@ pub mod whisper_market {
 
     pub fn complete_purchase(
         ctx: Context<CompletePurchase>,
-        encrypted_message: [u8; 317],
+        encrypted_message: [u8; 318],
         // zk_proof: &[u8],
         zk_proof: Vec<u8>,
     ) -> Result<()> {
