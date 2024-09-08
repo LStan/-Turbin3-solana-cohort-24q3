@@ -30,8 +30,8 @@ template Proof(length) {
     signal input key;
     // public
     signal input nonce;
-    signal input messageHash;
-    signal input keyHash;
+    signal output messageHash;
+    signal output keyHash;
     signal output encryptedMessage[length];
 
     component encrypt;
@@ -53,15 +53,15 @@ template Proof(length) {
     for (var i = 0; i < length; i++) {
         hasherMessage.inputs[i] <== message[i];
     }
-    messageHash === hasherMessage.out[1];
+    messageHash <== hasherMessage.out[1];
 
     component hasherKey;
     hasherKey = PoseidonEx(1, 2);
     hasherKey.initialState <== 0;
     hasherKey.inputs[0] <== key;
 
-    keyHash === hasherKey.out[1];
+    keyHash <== hasherKey.out[1];
 
 }
 
-component main {public [nonce, messageHash, keyHash]} = Proof(10);
+component main {public [nonce]} = Proof(10);

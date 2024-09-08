@@ -1,5 +1,6 @@
 import { ZqField } from "ffjavascript";
 import { buildPoseidon } from "circomlibjs";
+import { wasm } from "circom_tester";
 import { assert } from "chai";
 
 const SNARK_FIELD_SIZE =
@@ -109,15 +110,60 @@ async function fullPathTest() {
   const binary = stringToBinary(message);
   //   console.log(binary);
 
-  const bigIntArray = binaryStringToBigIntArray(binary, 253, MAX_SYMBOLS);
-  const encryptedMessage = await poseidonEncrypt(bigIntArray, key, nonce);
+  const bigIntArrayMessage = binaryStringToBigIntArray(
+    binary,
+    253,
+    MAX_SYMBOLS
+  );
+  const encryptedMessage = await poseidonEncrypt(
+    bigIntArrayMessage,
+    key,
+    nonce
+  );
   //   const encryptedMessage = bigIntArray;
   //   console.log(encryptedMessage.length);
+
+  const messageHash = await hashMessage(bigIntArrayMessage);
+  const keyHash = await hashKey(key);
+
+  console.log("Starting proof");
+
+  const circuit = await wasm("./zk_proof/circom/proof.circom");
+  const witness = await circuit.calculateWitness({
+    message: bigIntArrayMessage,
+    key,
+    nonce,
+    // messageHash,
+    // keyHash,
+  });
+  await circuit.checkConstraints(witness);
+
+  await circuit.loadSymbols();
+  const encryptedMessageCircuit: BigInt[] = [];
+  for (let i = 0; i < bigIntArrayMessage.length; i++) {
+    const out =
+      witness[circuit.symbols["main.encryptedMessage[" + i + "]"].varIdx];
+    encryptedMessageCircuit.push(out);
+  }
+  // console.log(encryptedMessageCircuit);
+  // console.log(encryptedMessage);
+  assert(encryptedMessageCircuit.length === encryptedMessage.length);
+
+  for (let i = 0; i < encryptedMessageCircuit.length; i++) {
+    assert(encryptedMessageCircuit[i] === encryptedMessage[i]);
+  }
+
+  const messageHashCircuit = witness[circuit.symbols["main.messageHash"].varIdx];
+  const keyHashCircuit = witness[circuit.symbols["main.keyHash"].varIdx];
+  assert(messageHashCircuit === messageHash);
+  assert(keyHashCircuit === keyHash);
+
+  console.log("Proof checked");
 
   const encryptedBits = bigIntArrayToBinaryString(encryptedMessage, 254);
   //   console.log(encryptedBits);
 
-  const encryptedBytes = binaryStringToBigIntArray(encryptedBits, 8, 318);
+  const encryptedBytes = binaryStringToBigIntArray(encryptedBits, 8, Math.ceil(encryptedBits.length / 8));
 
   const encryptedBitsReturned = bigIntArrayToBinaryString(encryptedBytes, 8);
   //   console.log(encryptedBits === encryptedBitsReturned);
@@ -140,6 +186,8 @@ async function fullPathTest() {
   //   console.log(decryptedMessageFinal);
 
   assert(decryptedMessageFinal === message);
+
+  console.log("Message decrypted successfully");
 }
 
 fullPathTest();
