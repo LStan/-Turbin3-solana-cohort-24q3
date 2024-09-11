@@ -32,7 +32,7 @@ impl<'info> List<'info> {
             encrypt_nonce: [0; 8],
             state: ListingState::Listed,
             description,
-            encrypted_message: [0; 318],
+            encrypted_message: [0; 320],
         });
 
         Ok(())

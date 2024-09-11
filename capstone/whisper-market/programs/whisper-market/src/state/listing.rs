@@ -15,7 +15,7 @@ pub struct Listing {
     pub state: ListingState,
     #[max_len(0)]
     pub description: String,
-    pub encrypted_message: [u8; 318],
+    pub encrypted_message: [u8; 320],
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]

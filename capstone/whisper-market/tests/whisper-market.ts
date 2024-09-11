@@ -260,7 +260,7 @@ describe("whisper-market", () => {
   });
 
   it("Seller can complete purchase", async () => {
-    const encrypted_message_stub = new Array(318).fill(0);
+    const encrypted_message_stub = new Array(320).fill(0);
     const zk_proof_stub = Buffer.from("some proof");
 
     const sellerBalanceBefore = await provider.connection.getBalance(

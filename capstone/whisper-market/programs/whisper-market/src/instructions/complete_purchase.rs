@@ -24,17 +24,18 @@ pub struct CompletePurchase<'info> {
 }
 
 impl<'info> CompletePurchase<'info> {
-    pub fn complete_purchase(&mut self, encrypted_message: [u8; 318], zk_proof: &[u8]) -> Result<()> {
+    pub fn complete_purchase(&mut self, encrypted_message: [u8; 320], zk_proof: &[u8]) -> Result<()> {
         require!(
             self.listing.state == ListingState::Purchased,
             MarketPlaceError::NotPurchased
         );
         require!(
             verify_proof(
-                &encrypted_message,
+                zk_proof,
+                &self.listing.message_hash,
                 &self.listing.encrypt_key_hash,
+                &encrypted_message,
                 &self.listing.encrypt_nonce,
-                zk_proof
             ),
             MarketPlaceError::InvalidProof
         );
