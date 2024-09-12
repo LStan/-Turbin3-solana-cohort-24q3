@@ -2,6 +2,14 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program, web3 } from "@coral-xyz/anchor";
 import { WhisperMarket } from "../target/types/whisper_market";
 import { assert, expect } from "chai";
+import {
+  decryptMessage,
+  generateNonce,
+  generateProof,
+  hashKey,
+  hashMessage,
+  sharedSecretFromEd25519Keys,
+} from "../zk_proof/utils";
 
 describe("whisper-market", () => {
   // Configure the client to use the local cluster.
@@ -17,6 +25,7 @@ describe("whisper-market", () => {
   const MARKETPLACE_NAME = "TestMarketplace";
   const FEE_BPS = 10;
   const PRICE = new anchor.BN(1000000000);
+  const MESSAGE = "Test message";
 
   let marketplace: web3.PublicKey;
   let treasury: web3.PublicKey;
@@ -70,8 +79,6 @@ describe("whisper-market", () => {
       .signers([admin])
       .rpc();
 
-    console.log("Your transaction signature", tx);
-
     const marketplaceAccount = await program.account.marketplace.fetch(
       marketplace
     );
@@ -81,17 +88,16 @@ describe("whisper-market", () => {
 
   it("Seller creates listing", async () => {
     const description = "Test";
-    const message_hash_stub = new Array(32).fill(0);
+    const messageHash = await hashMessage(MESSAGE);
+
     const tx = await program.methods
-      .list(seed1, description, PRICE, message_hash_stub)
+      .list(seed1, description, PRICE, messageHash)
       .accounts({
         seller: seller.publicKey,
         marketplace,
       })
       .signers([seller])
       .rpc();
-
-    console.log("Your transaction signature", tx);
 
     const listingAccount = await program.account.listing.fetch(listing1);
     // expect(listingAccount.seller).to.deep.equal(seller.publicKey);
@@ -129,17 +135,15 @@ describe("whisper-market", () => {
 
   it("Seller creates listing again", async () => {
     const description = "Test";
-    const message_hash_stub = new Array(32).fill(0);
+    const message_hash = await hashMessage(MESSAGE);
     const tx = await program.methods
-      .list(seed1, description, PRICE, message_hash_stub)
+      .list(seed1, description, PRICE, message_hash)
       .accounts({
         seller: seller.publicKey,
         marketplace,
       })
       .signers([seller])
       .rpc();
-
-    console.log("Your transaction signature", tx);
 
     const listingAccount = await program.account.listing.fetch(listing1);
     expect(listingAccount.seller.equals(seller.publicKey)).to.be.true;
@@ -148,13 +152,18 @@ describe("whisper-market", () => {
   });
 
   it("Buyer can purchase listing", async () => {
-    const encrypt_key_hash_stub = new Array(32).fill(0);
-    const nonce = getInt64Bytes(123);
+    const listingAccountBefore = await program.account.listing.fetch(listing1);
+    const encryptKey = sharedSecretFromEd25519Keys(
+      buyer.secretKey,
+      listingAccountBefore.seller.toBytes()
+    );
+    const encryptKeyHash = await hashKey(encryptKey);
+    const nonce = generateNonce();
 
     const balanceBefore = await provider.connection.getBalance(listing1);
 
     const tx = await program.methods
-      .purchase(encrypt_key_hash_stub, nonce)
+      .purchase(encryptKeyHash, nonce)
       .accountsPartial({
         buyer: buyer.publicKey,
         marketplace,
@@ -165,8 +174,9 @@ describe("whisper-market", () => {
 
     const listingAccount = await program.account.listing.fetch(listing1);
     expect(listingAccount.buyer.equals(buyer.publicKey)).to.be.true;
-    expect(listingAccount.encryptKeyHash).to.deep.equal(encrypt_key_hash_stub);
+    expect(listingAccount.encryptKeyHash).to.deep.equal(encryptKeyHash);
     expect(listingAccount.encryptNonce).to.deep.equal(nonce);
+
     expect(listingAccount.state).to.deep.equal({ purchased: {} });
 
     const balanceAfter = await provider.connection.getBalance(listing1);
@@ -177,11 +187,11 @@ describe("whisper-market", () => {
 
   it("Buyer can't purchase listing again", async () => {
     try {
-      const encrypt_key_hash_stub = new Array(32).fill(0);
-      const nonce = getInt64Bytes(123);
+      const encryptKeyHashStub = new Array(32).fill(0);
+      const nonce = generateNonce();
 
       await program.methods
-        .purchase(encrypt_key_hash_stub, nonce)
+        .purchase(encryptKeyHashStub, nonce)
         .accountsPartial({
           buyer: buyer.publicKey,
           marketplace,
@@ -212,11 +222,16 @@ describe("whisper-market", () => {
   });
 
   it("Buyer can purchase again", async () => {
-    const encrypt_key_hash_stub = new Array(31).fill(0);
-    const nonce = getInt64Bytes(123);
+    const listingAccountBefore = await program.account.listing.fetch(listing1);
+    const encryptKey = sharedSecretFromEd25519Keys(
+      buyer.secretKey,
+      listingAccountBefore.seller.toBytes()
+    );
+    const encryptKeyHash = await hashKey(encryptKey);
+    const nonce = generateNonce();
 
     const tx = await program.methods
-      .purchase(encrypt_key_hash_stub, nonce)
+      .purchase(encryptKeyHash, nonce)
       .accountsPartial({
         buyer: buyer.publicKey,
         marketplace,
@@ -260,8 +275,17 @@ describe("whisper-market", () => {
   });
 
   it("Seller can complete purchase", async () => {
-    const encrypted_message_stub = new Array(320).fill(0);
-    const zk_proof_stub = Buffer.from("some proof");
+    const listingAccountBefore = await program.account.listing.fetch(listing1);
+    const encryptKey = sharedSecretFromEd25519Keys(
+      seller.secretKey,
+      listingAccountBefore.buyer.toBytes()
+    );
+
+    const { encryptedMessage, zkProof } = await generateProof(
+      MESSAGE,
+      encryptKey,
+      listingAccountBefore.encryptNonce
+    );
 
     const sellerBalanceBefore = await provider.connection.getBalance(
       seller.publicKey
@@ -272,7 +296,7 @@ describe("whisper-market", () => {
     );
 
     const tx = await program.methods
-      .completePurchase(encrypted_message_stub, zk_proof_stub)
+      .completePurchase(encryptedMessage, zkProof)
       .accountsPartial({
         seller: seller.publicKey,
         marketplace,
@@ -283,7 +307,7 @@ describe("whisper-market", () => {
 
     const listingAccount = await program.account.listing.fetch(listing1);
     expect(listingAccount.state).to.deep.equal({ completed: {} });
-    expect(listingAccount.encryptedMessage).to.deep.equal(encrypted_message_stub);
+    expect(listingAccount.encryptedMessage).to.deep.equal(encryptedMessage);
 
     const sellerBalanceAfter = await provider.connection.getBalance(
       seller.publicKey
@@ -294,6 +318,21 @@ describe("whisper-market", () => {
     expect(treasuryBalanceAfter - treasuryBalanceBefore).to.equal(
       (FEE_BPS * PRICE.toNumber()) / 10000
     );
+  });
+
+  it("Buyer can decrypt message", async () => {
+    const listingAccount = await program.account.listing.fetch(listing1);
+
+    const decryptKey = sharedSecretFromEd25519Keys(
+      buyer.secretKey,
+      listingAccount.seller.toBytes()
+    );
+    const decryptedMessage = await decryptMessage(
+      listingAccount.encryptedMessage,
+      decryptKey,
+      listingAccount.encryptNonce
+    );
+    expect(decryptedMessage).to.equal(MESSAGE);
   });
 
   it("Seller can't delist completed listing", async () => {
@@ -327,13 +366,4 @@ async function airdrop(connection: any, address: any, amount = 2000000000) {
   } catch (error) {
     console.error(error);
   }
-}
-
-function getInt64Bytes(x) {
-  var bytes = [];
-  for (var i = 0; i < 8; i++) {
-    bytes[i] = x & 0xff; // Get the last byte
-    x = x >> 8; // Shift right by 8 bits
-  }
-  return bytes;
 }
