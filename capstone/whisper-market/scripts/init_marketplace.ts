@@ -5,8 +5,8 @@ import { WhisperMarket } from "../target/types/whisper_market";
 import idl from "../target/idl/whisper_market.json";
 
 const keypair = Keypair.fromSecretKey(new Uint8Array(wallet));
-const connection = new Connection("http://127.0.0.1:8899");
-// const connection = new Connection("https://api.devnet.solana.com");
+// const connection = new Connection("http://127.0.0.1:8899");
+const connection = new Connection("https://api.devnet.solana.com");
 
 const provider = new AnchorProvider(connection, new Wallet(keypair), {
   commitment: "confirmed",

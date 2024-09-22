@@ -74,7 +74,7 @@ export default function PurchaseListing({
       </button>
       {tx && (
         <div className="text-sm font-normal align-bottom text-slate-600">
-          https://explorer.solana.com/tx/${tx}?cluster=devnet
+          https://explorer.solana.com/tx/{tx}?cluster=devnet
         </div>
       )}
     </>

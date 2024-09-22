@@ -7,6 +7,9 @@ skip-lint = false
 [programs.localnet]
 whisper_market = "AL8vd4XrR2xWLjHCsMUQHYnEtYR8BoMYXgySJGGkJSQ4"
 
+[programs.devnet]
+whisper_market = "AL8vd4XrR2xWLjHCsMUQHYnEtYR8BoMYXgySJGGkJSQ4"
+
 [registry]
 url = "https://api.apr.dev"
 
