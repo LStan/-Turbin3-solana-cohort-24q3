@@ -17,7 +17,7 @@ pub struct Purchase<'info> {
 }
 
 impl<'info> Purchase<'info> {
-    pub fn purchase(&mut self, encrypt_key_hash: [u8; 32], nonce: [u8; 8]) -> Result<()> {
+    pub fn purchase(&mut self, encrypt_key_hash: [u8; 32], nonce: [u8; 8], buyer_pk_encrypt: Option<Pubkey>) -> Result<()> {
         require!(
             self.listing.state == ListingState::Listed,
             MarketPlaceError::AlreadyPurchased
@@ -44,6 +44,7 @@ impl<'info> Purchase<'info> {
         self.listing.buyer = Some(self.buyer.key());
         self.listing.encrypt_key_hash = encrypt_key_hash;
         self.listing.encrypt_nonce = nonce;
+        self.listing.buyer_pk_encrypt = buyer_pk_encrypt;
         self.listing.state = ListingState::Purchased;
         Ok(())
     }

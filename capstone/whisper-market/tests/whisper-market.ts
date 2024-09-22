@@ -91,7 +91,7 @@ describe("whisper-market", () => {
     const messageHash = await hashMessage(MESSAGE);
 
     const tx = await program.methods
-      .list(seed1, description, PRICE, messageHash)
+      .list(seed1, description, PRICE, messageHash, null)
       .accounts({
         seller: seller.publicKey,
         marketplace,
@@ -137,7 +137,7 @@ describe("whisper-market", () => {
     const description = "Test";
     const message_hash = await hashMessage(MESSAGE);
     const tx = await program.methods
-      .list(seed1, description, PRICE, message_hash)
+      .list(seed1, description, PRICE, message_hash, null)
       .accounts({
         seller: seller.publicKey,
         marketplace,
@@ -163,7 +163,7 @@ describe("whisper-market", () => {
     const balanceBefore = await provider.connection.getBalance(listing1);
 
     const tx = await program.methods
-      .purchase(encryptKeyHash, nonce)
+      .purchase(encryptKeyHash, nonce, null)
       .accountsPartial({
         buyer: buyer.publicKey,
         marketplace,
@@ -191,7 +191,7 @@ describe("whisper-market", () => {
       const nonce = generateNonce();
 
       await program.methods
-        .purchase(encryptKeyHashStub, nonce)
+        .purchase(encryptKeyHashStub, nonce, null)
         .accountsPartial({
           buyer: buyer.publicKey,
           marketplace,
@@ -231,7 +231,7 @@ describe("whisper-market", () => {
     const nonce = generateNonce();
 
     const tx = await program.methods
-      .purchase(encryptKeyHash, nonce)
+      .purchase(encryptKeyHash, nonce, null)
       .accountsPartial({
         buyer: buyer.publicKey,
         marketplace,
@@ -322,6 +322,8 @@ describe("whisper-market", () => {
 
   it("Buyer can decrypt message", async () => {
     const listingAccount = await program.account.listing.fetch(listing1);
+
+    expect(listingAccount.state).to.deep.equal({ completed: {} });
 
     const decryptKey = sharedSecretFromEd25519Keys(
       buyer.secretKey,

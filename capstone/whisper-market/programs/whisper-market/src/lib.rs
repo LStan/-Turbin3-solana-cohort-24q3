@@ -34,9 +34,10 @@ pub mod whisper_market {
         description: String,
         price: u64,
         message_hash: [u8; 32],
+        seller_pk_encrypt: Option<Pubkey>,
     ) -> Result<()> {
         ctx.accounts
-            .list(seed, description, price, message_hash, &ctx.bumps)
+            .list(seed, description, price, message_hash, seller_pk_encrypt, &ctx.bumps)
     }
 
     pub fn delist(_ctx: Context<Delist>) -> Result<()> {
@@ -47,8 +48,9 @@ pub mod whisper_market {
         ctx: Context<Purchase>,
         encrypt_key_hash: [u8; 32],
         nonce: [u8; 8],
+        buyer_pk_encrypt: Option<Pubkey>,
     ) -> Result<()> {
-        ctx.accounts.purchase(encrypt_key_hash, nonce)
+        ctx.accounts.purchase(encrypt_key_hash, nonce, buyer_pk_encrypt)
     }
 
     pub fn cancel_purchase(ctx: Context<CancelPurchase>) -> Result<()> {

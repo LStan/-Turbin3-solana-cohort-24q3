@@ -1,11 +1,9 @@
 import { ZqField, buildBn128, utils } from "ffjavascript";
 import { buildPoseidon } from "circomlibjs";
-import { wasm } from "circom_tester";
 import { assert } from "chai";
 import * as snarkjs from "snarkjs";
-import * as fs from "fs";
 import { convertPublicKey, convertSecretKey } from "ed2curve";
-import { scalarMult, sign } from "tweetnacl";
+import { scalarMult } from "tweetnacl";
 
 const SNARK_FIELD_SIZE =
   "21888242871839275222246405745257275088548364400416034343698204186575808495617";

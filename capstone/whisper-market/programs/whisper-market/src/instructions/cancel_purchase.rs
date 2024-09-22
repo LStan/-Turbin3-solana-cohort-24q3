@@ -43,6 +43,7 @@ impl<'info> CancelPurchase<'info> {
         self.listing.buyer = None;
         self.listing.encrypt_key_hash = [0; 32];
         self.listing.encrypt_nonce = [0; 8];
+        self.listing.buyer_pk_encrypt = None;
         self.listing.state = ListingState::Listed;
         Ok(())
     }

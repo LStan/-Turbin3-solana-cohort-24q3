@@ -20,8 +20,9 @@ pub struct List<'info> {
 }
 
 impl<'info> List<'info> {
-    pub fn list(&mut self, seed: u64, description: String, price: u64, message_hash: [u8; 32], bumps: &ListBumps) -> Result<()> {
+    pub fn list(&mut self, seed: u64, description: String, price: u64, message_hash: [u8; 32], seller_pk_encrypt: Option<Pubkey>, bumps: &ListBumps) -> Result<()> {
         self.listing.set_inner(Listing {
+            marketplace: self.marketplace.key(),
             seed,
             bump: bumps.listing,
             seller: self.seller.key(),
@@ -30,6 +31,8 @@ impl<'info> List<'info> {
             encrypt_key_hash: [0; 32],
             buyer: None,
             encrypt_nonce: [0; 8],
+            seller_pk_encrypt,
+            buyer_pk_encrypt: None,
             state: ListingState::Listed,
             description,
             encrypted_message: [0; 320],
