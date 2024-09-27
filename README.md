@@ -24,4 +24,4 @@ This repository contains all the work done during the Turbin3 WBA cohort Q3 2024
 
 ### Capstone project
 
-- [whisper-market](./capstone/whisper-market): A marketplace to trade secret messages/information using Zero Knowledge Proofs
+- [whisper-market](./capstone/whisper-market): A marketplace to trade secret messages/information (e.g. software keys, login credentials for some account, etc.) using Zero Knowledge Proofs
