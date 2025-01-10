@@ -188,10 +188,13 @@ async function generateProof(
   let { proof, publicSignals } = await snarkjs.groth16.fullProve(
     proofInput,
     wasmPath,
-    zkeyPath
+    zkeyPath,
+    undefined,
+    undefined,
+    { singleThread: true }
   );
 
-  const curve = await buildBn128();
+  const curve = await buildBn128(true);
 
   proof = utils.unstringifyBigInts(proof);
   let pi_a_temp = curve.G1.fromObject(proof.pi_a);
